@@ -18,6 +18,12 @@ ETCDCTL_API=3 etcdctl --endpoints=https://[127.0.0.1]:2379 \
 --key=/etc/kubernetes/pki/etcd/server.key \
 snapshot save /opt/snapshot-pre-boot.db
 
+#########
+# mapping, etcdctl options  ---  /etc/kubernetes/manifests/etcd.yaml:
+# cert   --- cert-file
+# key    --- key-file
+# cacert --- trusted-ca-file
+
 # status. 
 ETCDCTL_API=3 etcdctl \
 snapshot status /opt/snapshot-pre-boot.db
