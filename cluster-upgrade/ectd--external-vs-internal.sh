@@ -11,13 +11,13 @@
 
 
 # 1. exploring
-# I
+# INTERNAL:
 kubectl config use-context cluster1
-k get po -A
+kubectl get po -A
 kubectl get pods -n kube-system | grep etcd # output: etcd-cluster1-controlplane
 kubectl get pods -n kube-system etcd-cluster1-controlplane -oyaml
 
-# E
+# EXTERNAL:
 kubectl config use-context cluster2
 kubectl get pods -n kube-system  | grep etcd # no pod
 ssh cluster2-controlplane 
@@ -54,8 +54,56 @@ ETCDCTL_API=3 etcdctl \
 
 
 
-# 5. Backing up
-# I
+# 5. Example of backing up for internal etcd
+
+# INTERNAL
 kubectl config use-context cluster1
-k get no
+kubectl get no
 ssh cluster1-controlplane
+
+ETCDCTL_API=3 etcdctl --endpoints=https://192.12.123.3:2379 \
+--cacert=/etc/kubernetes/pki/etcd/ca.crt \
+--cert=/etc/kubernetes/pki/etcd/server.crt \
+--key=/etc/kubernetes/pki/etcd/server.key \
+snapshot save /opt/cluster1.db
+
+# (optional) if you need to have it on your jump host (being sshed on your jumphost)
+scp cluster1-controlplane:/opt/cluster1.db /opt
+
+# for external the process is similar, - you  have to run the command 
+# being etcd-server sshed
+
+
+# 6. Example of restoring a backup for external etcd: 
+
+# EXTERNAL
+# a. ssh to the etcd-server (you should have the backup already there)
+ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \
+    --cacert=/etc/etcd/pki/ca.pem \
+    --cert=/etc/etcd/pki/etcd.pem \
+    --key=/etc/etcd/pki/etcd-key.pem \
+    snapshot restore /root/cluster2.db --data-dir /var/lib/etcd-data-new
+# b. Update the systemd service unit file for etcd by running `vim /etc/systemd/system/etcd.service` and add the new value for data-dir
+[Unit]
+Description=etcd key-value store
+Documentation=https://github.com/etcd-io/etcd
+After=network.target
+
+[Service]
+User=etcd
+Type=notify
+ExecStart=/usr/local/bin/etcd \
+  --name etcd-server \
+  --data-dir=/var/lib/etcd-data-new  # this
+
+# c. make sure the permissions on the new directory is correct (should be owned by etcd user)
+ ls -ld /var/lib/etcd-data-new/
+# output: drwx------ 3 etcd etcd 4096 Sep  1 02:41 /var/lib/etcd-data-new/
+
+# d. reload and restart the etcd service
+systemctl daemon-reload 
+systemctl restart etcd
+
+# e.  (optional): It is recommended to restart controlplane components (e.g. kube-scheduler, kube-controller-manager, kubelet) to ensure that they don't rely on some stale data.
+kubectl delete po <pods for kube-scheduler, kube-controller-manage etc.>
+sudo systemctl restart kubelet
