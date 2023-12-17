@@ -23,6 +23,7 @@ snapshot save /opt/snapshot-pre-boot.db
 # cert   --- cert-file
 # key    --- key-file
 # cacert --- trusted-ca-file
+#########
 
 # status. 
 ETCDCTL_API=3 etcdctl \
@@ -45,6 +46,7 @@ vim /etc/kubernetes/manifests/etcd.yaml
 # As the ETCD pod has changed it will automatically restart, and also kube-controller-manager and kube-scheduler. Wait 1-2 to mins for this pods to restart. You can run the command: 
 watch "crictl ps | grep etcd" 
 
-# If the etcd pod is not getting Ready 1/1, then restart it by kubectl delete pod -n kube-system etcd-controlplane and wait 1 minute.
-
+# If the etcd pod is not getting Ready 1/1, then restart it with 
+kubectl delete pod -n kube-system etcd-controlplane .
+# and wait 1 minute
 
