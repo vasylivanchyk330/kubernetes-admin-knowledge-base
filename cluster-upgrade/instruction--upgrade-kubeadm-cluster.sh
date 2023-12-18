@@ -60,6 +60,7 @@ kubectl uncordon <node-to-uncordon>
 # a. ssh to the node
 
 # b. Upgrade kubeadm
+sudo kubeadm upgrade node 
 
 # c. apply upgrade
 sudo kubeadm upgrade node
