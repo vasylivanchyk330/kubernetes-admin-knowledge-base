@@ -7,7 +7,7 @@
 openssl genrsa -out jane.key 2048
 openssl req -new -key jane.key -subj "/CN=jane" -out jane.csr
 
-cat jane.csr | base64 -w 0 # get decripted oneliner
+cat jane.csr | base64 -w 0 # get encripted oneliner
 
 # create yaml file with CertificateSigningRequest object
 apiVersion: certificates.k8s.io/v1beta1
