@@ -1,11 +1,7 @@
 # ##################################################################
 # this file is a file with notes only. it's not for an execution
 # this file has .sh extention only because it's easier to read a content of a file with such an extention
-
-# main reference:
-# https://kodekloud.com/topic/practice-test-backup-and-restore-methods/
 # ##################################################################
-
 
 
 # 1. export 

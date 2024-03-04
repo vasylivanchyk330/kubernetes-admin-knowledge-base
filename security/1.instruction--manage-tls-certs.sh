@@ -41,6 +41,7 @@ curl https://kube-apiserver:6443/api/v1/pods \
 # key/crt used in the kube-config.yaml
 apiVersion: v1
 kind: Config
+current-context: kubernetes-admin@kubernetes
 clusters:
 - cluster:
     certificate-authority: ca.crt

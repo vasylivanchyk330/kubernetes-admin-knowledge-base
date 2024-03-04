@@ -64,3 +64,9 @@ docker logs 87fc
 
 # 5. from k8s 
 kubectl logs etcd-master
+
+
+
+# 6. with crictl
+crictl ps -a # to get container id of say api-server
+crictl logs a850a8dd78593
